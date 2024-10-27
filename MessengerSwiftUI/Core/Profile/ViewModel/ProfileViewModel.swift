@@ -15,7 +15,14 @@ final class ProfileViewModel: ObservableObject {
     
     @Published var profileImage: Image?
     
-    func loadImage() async throws{
+    
+    /// Asynchronously loads an image from `selectedItem` and assigns it to `profileImage`.
+    ///
+    /// Checks if an item is selected, loads its image data, converts it to `UIImage`,
+    /// and wraps it in a SwiftUI `Image`.
+    ///
+    /// - Throws: An error if image data can't be loaded or `UIImage` creation fails.
+    func loadImage() async throws {
         guard let item = selectedItem else { return }
         guard let imageData = try? await item.loadTransferable(type: Data.self) else { return }
         guard let uiImage = UIImage(data: imageData) else { return }
