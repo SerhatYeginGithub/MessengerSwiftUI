@@ -10,10 +10,10 @@ import PhotosUI
 
 struct ProfileView: View {
     @StateObject private var vm = ProfileViewModel()
-    let user: User?
+    let user: User
     var body: some View {
         VStack {
-            if let user = user {
+           
                 VStack {
                     // HEADER VIEW
                     PhotosPicker(selection: $vm.selectedItem) {
@@ -65,7 +65,7 @@ struct ProfileView: View {
             }
         }
     }
-}
+
 
 #Preview {
     ProfileView(user: User.MOCK_USER)

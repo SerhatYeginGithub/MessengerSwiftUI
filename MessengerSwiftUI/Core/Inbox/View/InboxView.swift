@@ -10,6 +10,8 @@ import SwiftUI
 struct InboxView: View {
     @State private var showMessageView = false
     @StateObject private var vm = InboxViewModel()
+    @State private var selectedUser: User?
+    @State private var showChat = false
     private var user: User? { vm .currentUser }
     
     var body: some View {
@@ -24,6 +26,15 @@ struct InboxView: View {
                 }
                 .listStyle(.plain)
                 .frame(height: UIScreen.main.bounds.height - 120)
+                .navigationDestination(for: User.self) { user in
+                    ProfileView(user: user)
+                }
+                .navigationDestination(isPresented: $showChat) {
+                    if let user = selectedUser {
+                        ChatView(user: user)
+                    }
+                    
+                }
                 
             }
             .toolbar {
@@ -33,8 +44,11 @@ struct InboxView: View {
             }
             
             .fullScreenCover(isPresented: $showMessageView) {
-                NewMessageView()
-            } 
+                NewMessageView(selectedUser: $selectedUser)
+            }
+            .onChange(of: selectedUser) { newValue in
+                showChat = newValue != nil
+            }
         }
     }
 }
@@ -48,9 +62,7 @@ private extension InboxView {
     
     var toolbarItemPerson: some View {
         HStack {
-            NavigationLink{
-                ProfileView(user: user)
-            }label: {
+            NavigationLink(value: user){
                 CircularProfileImageView(user: user, size: .xSmall)
             }
             Text("Chats")
@@ -60,7 +72,10 @@ private extension InboxView {
     }
     
     var toolBarItemButton: some View {
-        Button { showMessageView.toggle() } label: {
+        Button {
+            showMessageView.toggle()
+            selectedUser = nil
+        } label: {
             Image(systemName: "square.and.pencil.circle.fill")
                 .resizable()
                 .frame(width: 40, height: 40)

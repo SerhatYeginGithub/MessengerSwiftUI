@@ -17,7 +17,7 @@ final class AuthService {
     /// Private initializer to enforce singleton pattern. Sets the initial user session state based on Firebase's current user session.
     private init() {
         self.userSession = Auth.auth().currentUser
-        Task { try await UserService.shared.fetchCurrentUser() }
+        loadCurrentUser()
     }
     
     /// Logs the user in with the provided email and password credentials asynchronously.
@@ -30,6 +30,7 @@ final class AuthService {
         do {
             let result = try await Auth.auth().signIn(withEmail: email, password: password)
             self.userSession = result.user
+            loadCurrentUser()
         } catch {
             print("DEBUG: Failed to sign In with error: \(error.localizedDescription) ")
         }
@@ -48,6 +49,7 @@ final class AuthService {
             let result = try await Auth.auth().createUser(withEmail: email, password: password)
             self.userSession = result.user
             try await uploadUserData(email: email, fullname: fullname, id: result.user.uid)
+            loadCurrentUser()
         } catch {
             print("DEBUG: Failed to create with error: \(error.localizedDescription) ")
         }
@@ -59,6 +61,7 @@ final class AuthService {
     func signOut() {
         guard let _ = try? Auth.auth().signOut() else { return }
         self.userSession = nil
+        UserService.shared.currentUser = nil
     }
     
     
@@ -73,5 +76,9 @@ final class AuthService {
         let user = User(uid: id, fullname: fullname, email: email, profileImageUrl: nil)
         guard let encodedUser = try? Firestore.Encoder().encode(user) else { return }
         try await Firestore.firestore().collection("users").document(id).setData(encodedUser)
+    }
+    
+    private func loadCurrentUser() {
+        Task { try await UserService.shared.fetchCurrentUser() }
     }
 }

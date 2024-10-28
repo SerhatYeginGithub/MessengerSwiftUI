@@ -19,12 +19,11 @@ struct ContentView: View {
                     LoginView()
                 }
             }
+                
         }
-        .onAppear() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                isPresented = true
-            }
-        }
+        .onChange(of: vm.userSession, perform: { newValue in
+            isPresented = true
+        })
     }
         
 }

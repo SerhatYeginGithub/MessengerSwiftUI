@@ -8,16 +8,21 @@
 import SwiftUI
 
 struct ChatView: View {
-    @State private var messageText: String = ""
+    @StateObject private var vm: ChatViewModel
+    let user: User
     
+    init(user: User) {
+        self.user = user
+        self._vm = StateObject(wrappedValue: ChatViewModel(user: user))
+    }
     var body: some View {
         VStack {
             ScrollView {
                 // Header
                 LazyVStack {
-                    CircularProfileImageView(user: User.MOCK_USER, size: .xLarge)
+                    CircularProfileImageView(user: user, size: .xLarge)
                     VStack(spacing: 4) {
-                        Text("Panda")
+                        Text(user.fullname)
                             .font(.title3)
                             .fontWeight(.semibold)
                         Text("Messenger")
@@ -27,15 +32,15 @@ struct ChatView: View {
                     
                 }
                 // Messages
-                ForEach(0...25, id: \.self) { _ in
-                    ChatMessageCell(isFromCurrenUser: Bool.random())
+                ForEach(vm.messages) { message in
+                    ChatMessageCell(message: message)
                 }
          
             }
             // Message Input View
             Spacer()
             ZStack(alignment: .trailing){
-                TextField("Message...", text: $messageText ,axis: .vertical)
+                TextField("Message...", text: $vm.messageText ,axis: .vertical)
                     .padding(12)
                     .padding(.trailing, 50)
                     .background(Color(.systemGroupedBackground))
@@ -43,7 +48,8 @@ struct ChatView: View {
                     .font(.subheadline)
                 
                 Button("Send") {
-                    print("DEBUG: SEND MESSAGE")
+                    vm.sendMessage()
+                    vm.messageText = ""
                 }
                 .fontWeight(.semibold)
                 .padding(.horizontal)
@@ -54,5 +60,5 @@ struct ChatView: View {
 }
 
 #Preview {
-    ChatView()
+    ChatView(user: .MOCK_USER)
 }
