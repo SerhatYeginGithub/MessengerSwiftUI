@@ -10,57 +10,59 @@ import PhotosUI
 
 struct ProfileView: View {
     @StateObject private var vm = ProfileViewModel()
-    let user: User
+    let user: User?
     var body: some View {
         VStack {
-            VStack {
-                // HEADER VIEW
-                PhotosPicker(selection: $vm.selectedItem) {
-                    if let image = vm.profileImage {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 80, height: 80)
-                            .clipShape(Circle())
-                    } else {
-                        CircularProfileImageView(user: user, size: .xLarge)
-                    }
-                }
-                
-                Text(user.fullname)
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                
-            }
-            
-            // List
-            
-            List {
-                Section {
-                    ForEach(SettingsOptionsViewModel.allCases) { option in
-                        HStack {
-                            Image(systemName: option.imageName)
+            if let user = user {
+                VStack {
+                    // HEADER VIEW
+                    PhotosPicker(selection: $vm.selectedItem) {
+                        if let image = vm.profileImage {
+                            image
                                 .resizable()
-                                .frame(width: 24, height: 24)
-                                .foregroundColor(option.imageBackgroundColor)
-                            Text(option.title)
-                                .font(.subheadline)
+                                .scaledToFill()
+                                .frame(width: 80, height: 80)
+                                .clipShape(Circle())
+                        } else {
+                            CircularProfileImageView(user: user, size: .xLarge)
                         }
                     }
+                    
+                    Text(user.fullname)
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                    
                 }
                 
-                Section {
-                    Button("Log Out") {
-                        AuthService.shared.signOut()
+                // List
+                
+                List {
+                    Section {
+                        ForEach(SettingsOptionsViewModel.allCases) { option in
+                            HStack {
+                                Image(systemName: option.imageName)
+                                    .resizable()
+                                    .frame(width: 24, height: 24)
+                                    .foregroundColor(option.imageBackgroundColor)
+                                Text(option.title)
+                                    .font(.subheadline)
+                            }
+                        }
                     }
                     
-                    Button("Delete Account") {
+                    Section {
+                        Button("Log Out") {
+                            AuthService.shared.signOut()
+                        }
                         
+                        Button("Delete Account") {
+                            
+                        }
                     }
+                    .foregroundColor(.red)
                 }
-                .foregroundColor(.red)
+                
             }
-            
         }
     }
 }

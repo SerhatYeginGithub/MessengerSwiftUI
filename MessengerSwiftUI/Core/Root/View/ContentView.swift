@@ -9,15 +9,24 @@ import SwiftUI
 
 struct ContentView: View {
     @StateObject private var vm = ContentViewModel()
+    @State private var isPresented: Bool = false
     var body: some View {
         Group {
-            if let _ = vm.userSession {
-                InboxView()
-            } else {
-                LoginView()
+            if isPresented {
+                if vm.userSession != nil {
+                    InboxView()
+                } else {
+                    LoginView()
+                }
+            }
+        }
+        .onAppear() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                isPresented = true
             }
         }
     }
+        
 }
 
 #Preview {

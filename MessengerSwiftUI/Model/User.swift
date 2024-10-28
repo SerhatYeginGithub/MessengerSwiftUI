@@ -6,12 +6,15 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
 struct User: Identifiable, Codable, Hashable{
-    var id = NSUUID().uuidString
+    @DocumentID var uid: String?
     let fullname: String
     let email: String
     var profileImageUrl: String?
+    
+    var id: String { uid ?? NSUUID().uuidString }
     
 }
 
