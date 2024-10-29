@@ -8,26 +8,31 @@
 import SwiftUI
 
 struct ActiveNowView: View {
+    @StateObject private var vm = ActiveNowViewModel()
+    
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false ) {
             HStack(spacing: 32){
-                ForEach(0..<10) { _ in
+                ForEach(vm.users) { user in
                     VStack {
-                        ZStack(alignment: .bottomTrailing){
-                            CircularProfileImageView(user: User.MOCK_USER, size: .medium)
-                            ZStack {
-                                Circle()
-                                    .foregroundColor(Color(.systemGray5))
-                                    .frame(width: 18, height: 18)
+                        
+                        NavigationLink(value: Route.chat(user)) {
+                            ZStack(alignment: .bottomTrailing){
+                                CircularProfileImageView(user: user, size: .medium)
+                                ZStack {
+                                    Circle()
+                                        .foregroundColor(Color(.systemGray5))
+                                        .frame(width: 18, height: 18)
+                                    
+                                    Circle()
+                                        .foregroundColor(Color(.systemGreen))
+                                        .frame(width: 12, height: 12)
+                                }
                                 
-                                Circle()
-                                    .foregroundColor(Color(.systemGreen))
-                                    .frame(width: 12, height: 12)
+                                
                             }
-                            
-                           
                         }
-                        Text("Panda")
+                        Text(user.firstname)
                             .font(.subheadline)
                             .foregroundColor(.gray)
                     }

@@ -20,15 +20,20 @@ final class ChatService {
     }
     
     
-    /// Sends a message to the chat partner by creating a document in both users' message collections.
+    /// Sends a message to the chat partner by creating and saving message documents in both users' message collections and their recent messages collections.
     /// - Parameter messageText: The text content of the message to send.
-    /// - Note: Encodes the message into Firestore format and saves it under both the current user's and the chat partner's message references.
+    /// - Note: The function performs the following actions:
+    ///   - Encodes the message and saves it under the current user's and the chat partner's specific message collection.
+    ///   - Updates both users' "recent-messages" collections to reflect the latest message exchange.
     func sendMessage(_ messageText: String) {
         guard let currentUid = Auth.auth().currentUser?.uid else { return }
         let chatPartnerId = chatPartner.id
         
         let currentUserRef = FirestoreConstants.messageCollection.document(currentUid).collection(chatPartnerId).document()
         let chatPartnerRef = FirestoreConstants.messageCollection.document(chatPartnerId).collection(currentUid)
+        let recentCurrentUserRef = FirestoreConstants.messageCollection.document(currentUid).collection("recent-messages").document(chatPartnerId)
+        
+        let recentPartnerRef = FirestoreConstants.messageCollection.document(chatPartnerId).collection("recent-messages").document(currentUid)
         
         let messageId = currentUserRef.documentID
         
@@ -38,6 +43,9 @@ final class ChatService {
         
         currentUserRef.setData(messageData)
         chatPartnerRef.document(messageId).setData(messageData)
+        recentCurrentUserRef.setData(messageData)
+        recentPartnerRef.setData(messageData)
+        
     }
     
     

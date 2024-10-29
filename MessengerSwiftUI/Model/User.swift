@@ -16,6 +16,11 @@ struct User: Identifiable, Codable, Hashable{
     
     var id: String { uid ?? NSUUID().uuidString }
     
+    var firstname: String {
+        let formatter = PersonNameComponentsFormatter()
+        let components = formatter.personNameComponents(from: fullname)
+        return components?.givenName ?? fullname
+    }
 }
 
 extension User {

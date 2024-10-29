@@ -34,8 +34,22 @@ final class UserService {
     /// - Returns: An array of `User` objects representing all users in the Firestore `userCollection`.
     /// - Throws: An error if the Firestore fetch operation fails.
     /// - Note: This function uses `compactMap` to filter out any documents that cannot be decoded into `User` objects.
-    static func fetchAllUsers() async throws -> [User] {
-        let snapshot = try await FirestoreConstants.userCollection.getDocuments()
+    static func fetchAllUsers(limit: Int) async throws -> [User] {
+        let query = FirestoreConstants.userCollection.limit(to: limit)
+        let snapshot = try await query.getDocuments()
         return snapshot.documents.compactMap({ try? $0.data(as: User.self) })
+    }
+    
+    
+    /// Fetches a `User` object from Firestore using the provided user ID (uid).
+    /// - Parameters:
+    ///   - uid: The unique identifier of the user to fetch.
+    ///   - completion: A closure that takes a `User` object and is called with the fetched user data if successful.
+    /// - Note: If fetching the user data fails, the completion handler is not called.
+    static func fetchUser(withUid uid: String, completion: @escaping (User)-> Void ) {
+        FirestoreConstants.userCollection.document(uid).getDocument { snapshot, _ in
+            guard let user = try? snapshot?.data(as: User.self) else { return }
+            completion(user)
+        }
     }
 }
