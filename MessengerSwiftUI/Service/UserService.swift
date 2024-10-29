@@ -52,4 +52,22 @@ final class UserService {
             completion(user)
         }
     }
+    
+    
+    /// Updates the user's Firestore document with a new profile image URL.
+    /// - Parameter url: The download URL of the profile image to be saved.
+    /// - Note: After updating the user's profile image URL in Firestore, this function asynchronously fetches the updated user data. Logs a debug message if the update fails.
+    func uploadProfileImageUrl(withImageUrl url: String) {
+        guard let uid = Auth.auth().currentUser?.uid else { return }
+        let data: [String: Any] = ["profileImageUrl": url]
+        FirestoreConstants.userCollection.document(uid).updateData(data) { error in
+            if error == nil {
+                Task { try await self.fetchCurrentUser() }
+            } else {
+                print("DEBUG: Fail to update user profile image url")
+            }
+            
+        }
+        
+    }
 }
